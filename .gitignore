@@ -1,0 +1,10 @@
+# IntelliJ
+build/
+.idea/
+*.iml
+
+# node.js
+node_modules/
+
+target/
+*.ibc
