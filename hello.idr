@@ -28,13 +28,13 @@ f x y = (y + x = x + y)
 g : (y : Nt) -> (x : Nt) -> Type
 g x y = (y + x = x + y)
 
-khwgriwhig: {z : Nt}
-  -> {w : Nt}
-  -> (N z) + w = N (w + z)
-  -> (N z) + (N w) = (N w) + (N z)
+jghhdjh : {x : Nt} -> {y : Nt} -> (x + y = y + x) -> N (y + x) = y + N x
+jghhdjh p {y = F} = Refl
+jghhdjh p {y = N t} = ?fjfjfjdfjdf p
 
-plus_inter_step : {x : Nt} -> {y : Nt} -> (y + x = x + y) -> ((N y) + x = x + N y)
-plus_inter_step {x} {y} = let d = induct (g (N y)) (plus_commutes_Z {m=N y}) khwgriwhig x in ?trivial1 d
+
+plus_inter_step : {x : Nt} -> {y : Nt} -> x + y = y + x -> N (x + y) = y + N x
+plus_inter_step {x} {y} p = rewrite p in jghhdjh {x} {y} p
 
 plus_commutes : (n : Nt) -> (m : Nt) -> n + m = m + n
 plus_commutes F m = plus_commutes_Z
