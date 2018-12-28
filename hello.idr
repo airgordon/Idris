@@ -1,41 +1,39 @@
 module Main
 
-data Nt: Type where
-    F : Nt
-    N : Nt -> Nt
+import Semigroup
+import Monoid
+import Natural as Nt
+import Zahlen
 
-total (+): Nt -> Nt -> Nt
-F + x = x
-(N x) + y = N (x + y)
+Semigroup.Semigroup Nt.Natural where
+    plus = (+)
+    assoc = nt_assoc
 
-plus_commutes_Z2 : {m : Nt} -> m = m + F
+Monoid.Monoid Nt.Natural where
+    neutral = F
+    left_neutral x = Refl
 
-plus_commutes_Z : F + m = m + F
-plus_commutes_Z {m} = plus_commutes_Z2
+    right_neutral F = Refl
+    right_neutral (N x) = cong (right_neutral x)
 
-total
-induct : (Prop : Nt -> Type)
- -> Prop F
- -> ({n: Nt} -> Prop n -> Prop (N n)) -- {n: Nt} -> why is necessary?
- -> (x : Nt)
- -> (Prop x)
-induct _  z _    F     = z
-induct pr z step (N y) = step (induct pr z step y)
+oneZ : Zahlen
+oneZ = plus_one Zero
 
-f : (x : Nt) -> (y : Nt) -> Type
-f x y = (y + x = x + y)
+twoZ : Zahlen
+twoZ = plus_one oneZ
 
-g : (y : Nt) -> (x : Nt) -> Type
-g x y = (y + x = x + y)
+threeZ : Zahlen
+threeZ = plus_one twoZ
 
-jghhdjh : {x : Nt} -> {y : Nt} -> (x + y = y + x) -> N (y + x) = y + N x
-jghhdjh p {y = F} = Refl
-jghhdjh p {y = N t} = ?fjfjfjdfjdf p
+m_oneZ : Zahlen
+m_oneZ = minus_one Zero
+
+m_twoZ : Zahlen
+m_twoZ = minus_one m_oneZ
+
+m_threeZ : Zahlen
+m_threeZ = minus_one m_twoZ
 
 
-plus_inter_step : {x : Nt} -> {y : Nt} -> x + y = y + x -> N (x + y) = y + N x
-plus_inter_step {x} {y} p = rewrite p in jghhdjh {x} {y} p
 
-plus_commutes : (n : Nt) -> (m : Nt) -> n + m = m + n
-plus_commutes F m = plus_commutes_Z
-plus_commutes n m = induct (f m) (plus_commutes_Z {m}) plus_inter_step n -- how to carry and inline (f m)
+
