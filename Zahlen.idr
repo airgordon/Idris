@@ -10,7 +10,7 @@ data Zahlen = Zero | Zpos (Nt.Positive x) | Zneg (Nt.Positive x)
 --- isPositive Zpos = True
 --- isPositive _ = False
 ---
----
+
 public export
 total
 plus_one : Zahlen -> Zahlen
@@ -27,27 +27,17 @@ minus_one (Zneg (Nt.PositiveN x)) = Zneg (Nt.PositiveN (N x))
 minus_one (Zpos (Nt.PositiveN F)) = Zero
 minus_one (Zpos (Nt.PositiveN (N x))) = Zpos (Nt.PositiveN x)
 
---- public export
---- (+) : Zahlen -> Zahlen -> Zahlen
----
---- (Zpos (Nt.PositiveN F))     + y = plus_one y
---- (Zpos (Nt.PositiveN (N x))) + y = (Zpos (Nt.PositiveN x)) + (plus_one y)
---- (Zneg (Nt.PositiveN F))     + y = minus_one y
---- (Zneg (Nt.PositiveN (N x))) + y = (Zneg (Nt.PositiveN x)) + (minus_one y)
---- Zero + y = y
-
-
 public export
 total
 addPos : Nt.Natural -> Zahlen -> Zahlen
 addPos F y     = plus_one y
-addPos (N x) y = addPos x (plus_one y)
+addPos (N x) y = plus_one (addPos x y)
 
 public export
 total
 addNeg : Nt.Natural -> Zahlen -> Zahlen
 addNeg F y     = minus_one y
-addNeg (N x) y = addNeg x (minus_one y)
+addNeg (N x) y = minus_one (addNeg x y)
 
 public export
 total
@@ -57,24 +47,71 @@ total
 (Zneg (Nt.PositiveN x)) + y = addNeg x y
 Zero + y = y
 
-total g4 : (y: Natural) -> (z: Zahlen) -> addNeg y z = plus_one (addNeg y (minus_one z))
-g4 F z = ?g41
-g4 (N y) z = ?g42
-
+total
+g3 : z = plus_one (minus_one z)
+g3 { z =  Zero                       } = Refl
+g3 { z = (Zneg (Nt.PositiveN n))     } = Refl
+g3 { z = (Zpos (Nt.PositiveN F))     } = Refl
+g3 { z = (Zpos (Nt.PositiveN (N n))) } = Refl
 
 total
-plus_one_assoc : (y, z: Zahlen) -> plus_one y + z = plus_one (y + z)
-plus_one_assoc Zero z = Refl
-plus_one_assoc (Zneg (Nt.PositiveN y)) z = ?g2
-plus_one_assoc (Zneg (Nt.PositiveN F)) z = ?g3
-plus_one_assoc (Zneg (Nt.PositiveN (N y))) z = ?g4
+g3m : z = minus_one (plus_one z)
+g3m {z = Zero} = Refl
+g3m {z = Zpos (Nt.PositiveN n)} = Refl
+g3m {z = Zneg (Nt.PositiveN F)} = Refl
+g3m {z = Zneg (Nt.PositiveN (N n))} = Refl
 
 total
-pos_z_assoc : (x : Nt.Natural) -> (y, z: Zahlen) -> (addPos x y) + z = addPos x (y + z)
-pos_z_assoc F y z = plus_one_assoc y z
+plus_one_assoc : plus_one y + z = plus_one (y + z)
+plus_one_assoc { y =  Zero                       } = Refl
+plus_one_assoc { y = (Zpos (Nt.PositiveN y))     } = Refl
+plus_one_assoc { y = (Zneg (Nt.PositiveN F))     } = g3
+plus_one_assoc { y = (Zneg (Nt.PositiveN (N y))) } = g3
 
+total
+minus_one_assoc : minus_one y + z = minus_one (y + z)
+minus_one_assoc { y =  Zero                       } = Refl
+minus_one_assoc { y = (Zneg (Nt.PositiveN y))     } = Refl
+minus_one_assoc { y = (Zpos (Nt.PositiveN F))     } = g3m
+minus_one_assoc { y = (Zpos (Nt.PositiveN (N y))) } = g3m
 
-neg_z_assoc : (x : Nt.Natural) -> (y, z: Zahlen) -> (addNeg x y) + z = addNeg x (y + z)
+total
+pos_z_assoc_r3 : plus_one t + z = plus_one (t + z)
+pos_z_assoc_r3 {t = Zero} = Refl
+pos_z_assoc_r3 {t = Zpos (Nt.PositiveN n)} = Refl
+pos_z_assoc_r3 {t = Zneg (Nt.PositiveN F)} = g3
+pos_z_assoc_r3 {t = Zneg (Nt.PositiveN (N n))} = g3
+
+total
+neg_z_assoc_r3 : minus_one t + z = minus_one (t + z)
+neg_z_assoc_r3 {t = Zero} = Refl
+neg_z_assoc_r3 {t = Zneg (Nt.PositiveN n)} = Refl
+neg_z_assoc_r3 {t = Zpos (Nt.PositiveN F)} = g3m
+neg_z_assoc_r3 {t = Zpos (Nt.PositiveN (N n))} = g3m
+
+total
+pos_z_assoc_r :
+((addPos n y) + z = addPos n (y + z)) ->
+(plus_one (addPos n y)) + z = plus_one (addPos n (y + z))
+
+pos_z_assoc_r p = rewrite (sym p) in pos_z_assoc_r3
+
+total
+neg_z_assoc_r :
+((addNeg n y) + z = addNeg n (y + z)) ->
+(minus_one (addNeg n y)) + z = minus_one (addNeg n (y + z))
+
+neg_z_assoc_r p = rewrite (sym p) in neg_z_assoc_r3
+
+total
+pos_z_assoc : (x : Nt.Natural) -> (addPos x y) + z = addPos x (y + z)
+pos_z_assoc F     = plus_one_assoc
+pos_z_assoc (N n) = pos_z_assoc_r (pos_z_assoc n)
+
+total
+neg_z_assoc : (x : Nt.Natural) -> (addNeg x y) + z = addNeg x (y + z)
+neg_z_assoc F     = minus_one_assoc
+neg_z_assoc (N n) = neg_z_assoc_r (neg_z_assoc n)
 
 total
 z_assoc :   (x : Zahlen) ->
@@ -82,6 +119,5 @@ z_assoc :   (x : Zahlen) ->
             (z : Zahlen) ->
             x + y + z = x + (y + z)
 z_assoc Zero y z = Refl
-z_assoc (Zpos (Nt.PositiveN x)) y z = pos_z_assoc x y z
-z_assoc (Zneg (Nt.PositiveN x)) y z = neg_z_assoc x y z
-
+z_assoc (Zpos (Nt.PositiveN x)) y z = pos_z_assoc x
+z_assoc (Zneg (Nt.PositiveN x)) y z = neg_z_assoc x
