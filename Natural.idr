@@ -14,12 +14,12 @@ F + x = x
 
 public export
 total
-nt_assoc :  (x : Natural) ->
-            (y : Natural) ->
-            (z : Natural) ->
+nt_assoc :  {x : Natural} ->
+            {y : Natural} ->
+            {z : Natural} ->
             x + y + z = x + (y + z)
-nt_assoc F y z = Refl
-nt_assoc (N x) y z = cong (nt_assoc x y z)
+nt_assoc {x = F  } = Refl
+nt_assoc {x = N t} = cong nt_assoc
 
 public export
 data Positive: Natural -> Type where
