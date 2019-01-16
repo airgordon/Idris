@@ -24,3 +24,8 @@ nt_assoc {x = N t} = cong nt_assoc
 public export
 data Positive: Natural -> Type where
     PositiveN : (x: Natural) -> Positive (N x)
+
+public export total
+mul : Natural -> Natural -> Natural
+mul F y = F
+mul (N t) y = y + mul t y

@@ -27,20 +27,20 @@ minus_one (Zpos (Nt.PositiveN F)) = Zero
 minus_one (Zpos (Nt.PositiveN (N x))) = Zpos (Nt.PositiveN x)
 
 public export total
-addPos : Nt.Natural -> Zahlen -> Zahlen
-addPos F y     = plus_one y
-addPos (N x) y = plus_one (addPos x y)
+incr : Nt.Natural -> Zahlen -> Zahlen
+incr F y     = plus_one y
+incr (N x) y = plus_one (incr x y)
 
 public export total
-addNeg : Nt.Natural -> Zahlen -> Zahlen
-addNeg F y     = minus_one y
-addNeg (N x) y = minus_one (addNeg x y)
+decr : Nt.Natural -> Zahlen -> Zahlen
+decr F y     = minus_one y
+decr (N x) y = minus_one (decr x y)
 
 public export total
 (+) : Zahlen -> Zahlen -> Zahlen
 
-(Zpos (Nt.PositiveN x)) + y = addPos x y
-(Zneg (Nt.PositiveN x)) + y = addNeg x y
+(Zpos (Nt.PositiveN x)) + y = incr x y
+(Zneg (Nt.PositiveN x)) + y = decr x y
 Zero + y = y
 
 public export total
@@ -87,25 +87,25 @@ neg_z_assoc_r3 {t = Zpos (Nt.PositiveN (N n))} = g3m
 
 public export total
 pos_z_assoc_r :
-((addPos n y) + z = addPos n (y + z)) ->
-(plus_one (addPos n y)) + z = plus_one (addPos n (y + z))
+((incr n y) + z = incr n (y + z)) ->
+(plus_one (incr n y)) + z = plus_one (incr n (y + z))
 
 pos_z_assoc_r p = rewrite (sym p) in pos_z_assoc_r3
 
 public export total
 neg_z_assoc_r :
-((addNeg n y) + z = addNeg n (y + z)) ->
-(minus_one (addNeg n y)) + z = minus_one (addNeg n (y + z))
+((decr n y) + z = decr n (y + z)) ->
+(minus_one (decr n y)) + z = minus_one (decr n (y + z))
 
 neg_z_assoc_r p = rewrite (sym p) in neg_z_assoc_r3
 
 public export total
-pos_z_assoc : (x : Nt.Natural) -> (addPos x y) + z = addPos x (y + z)
+pos_z_assoc : (x : Nt.Natural) -> (incr x y) + z = incr x (y + z)
 pos_z_assoc F     = plus_one_assoc
 pos_z_assoc (N n) = pos_z_assoc_r (pos_z_assoc n)
 
 public export total
-neg_z_assoc : (x : Nt.Natural) -> (addNeg x y) + z = addNeg x (y + z)
+neg_z_assoc : (x : Nt.Natural) -> (decr x y) + z = decr x (y + z)
 neg_z_assoc F     = minus_one_assoc
 neg_z_assoc (N n) = neg_z_assoc_r (neg_z_assoc n)
 
@@ -120,31 +120,75 @@ z_assoc {x = Zneg (Nt.PositiveN n)} = neg_z_assoc n
 
 
 public export total
-h : {t : Nt.Natural} -> addNeg t Zero = Zneg (PositiveN t)
-h {t = F } = Refl
-h {t = N n} = ?ff
+incr_is_pos : (t : Nt.Natural) -> incr t Zero = Zpos (PositiveN t)
+incr_is_pos F = Refl
+incr_is_pos (N x) = rewrite (incr_is_pos x) in Refl
+
+public export total
+right_neutral_pos : ((Zpos n) + Zero) = Zpos n
+right_neutral_pos {n = Nt.PositiveN t } = incr_is_pos t
+
+public export total
+decr_is_neg : (t : Nt.Natural) -> decr t Zero = Zneg (PositiveN t)
+decr_is_neg F = Refl
+decr_is_neg (N x) = rewrite (decr_is_neg x) in Refl
+
+public export total
+right_neutral_neg : ((Zneg n) + Zero) = Zneg n
+right_neutral_neg {n = Nt.PositiveN t } = decr_is_neg t
 
 
 public export total
-f : {t : Nt.Natural} -> minus_one (addNeg t Zero) = Zneg (PositiveN (N t))
-f {t=t} = rewrite (h {t=t}) in Refl
+right_neutral : {x: Zahlen} -> x + Zero = x
+right_neutral {x = Zero} = Refl
+right_neutral {x = Zneg n} = right_neutral_neg
+right_neutral {x = Zpos n} = right_neutral_pos
 
 public export total
-rn_neg : ((Zneg n) + Zero) = Zneg n
-rn_neg {n = Nt.PositiveN F } = Refl
-rn_neg {n = Nt.PositiveN (N t)} = f
-
-
-public export total
-rn_pos : ((Zpos n) + Zero) = Zpos n
-
-public export total
-rn : {x: Zahlen} -> x + Zero = x
-rn {x = Zero} = Refl
-rn {x = Zneg n} = rn_neg
-rn {x = Zpos n} = rn_pos
-
-total inv_plus: Zahlen -> Zahlen
+inv_plus: Zahlen -> Zahlen
 inv_plus Zero = Zero
 inv_plus (Zneg x) = Zpos x
 inv_plus (Zpos x) = Zneg x
+
+public export total
+left_inv_pos_r : (x : Natural) -> (t : Zahlen) -> minus_one (decr x (plus_one t)) = decr x t
+left_inv_pos_r F t = cong (sym g3m)
+left_inv_pos_r (N x) t = rewrite (sym (left_inv_pos_r x t)) in Refl
+
+public export total
+left_inv_neg_r : (x : Natural) -> (t : Zahlen) -> plus_one (incr x (minus_one t)) = incr x t
+left_inv_neg_r F t = cong (sym g3)
+left_inv_neg_r (N x) t = rewrite (sym (left_inv_neg_r x t)) in Refl
+
+public export total
+left_inv_pos : (y : Natural) -> decr y (Zpos (PositiveN y)) = Zero
+left_inv_pos F = Refl
+left_inv_pos (N x) = rewrite sym (left_inv_pos x) in (left_inv_pos_r x (Zpos (PositiveN x)))
+
+public export total
+left_inv_neg : (y : Natural) -> incr y (Zneg (PositiveN y)) = Zero
+left_inv_neg F = Refl
+left_inv_neg (N x) = rewrite sym (left_inv_neg x) in (left_inv_neg_r x (Zneg (PositiveN x)))
+
+public export total
+left_inv : {x : Zahlen} -> inv_plus x + x = Zero
+left_inv {x=Zero} = Refl
+left_inv {x=Zpos (Nt.PositiveN y)} = left_inv_pos y
+left_inv {x=Zneg (Nt.PositiveN y)} = left_inv_neg y
+
+public export total
+right_inv : {x : Zahlen} -> x + inv_plus x = Zero
+right_inv {x=Zero} = Refl
+right_inv {x=Zpos (Nt.PositiveN y)} = left_inv_neg y
+right_inv {x=Zneg (Nt.PositiveN y)} = left_inv_pos y
+
+public export total
+mulPos : Positive x -> Zahlen -> Zahlen
+mulPos (PositiveN F) y = y
+mulPos (PositiveN (N x)) y = y + mulPos (PositiveN x) y
+
+public export total
+mul : Zahlen -> Zahlen -> Zahlen
+mul Zero y = Zero
+mul (Zneg t) y = inv_plus (mulPos t y)
+mul (Zpos t) y = mulPos t y

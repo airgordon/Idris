@@ -2,6 +2,6 @@ module Semigroup
 
 public export
 interface Semigroup a where
-    total plus : a -> a -> a
+    total op : a -> a -> a
 
-    total assoc: {x, y, z : a} -> (x `plus` y) `plus` z = x `plus` (y `plus` z)
+    total assoc: {x, y, z : a} -> (x `op` y) `op` z = x `op` (y `op` z)

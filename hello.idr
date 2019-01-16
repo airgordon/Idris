@@ -2,11 +2,12 @@ module Main
 
 import Semigroup
 import Monoid
+import Group
 import Natural as Nt
 import Zahlen
 
 Semigroup.Semigroup Nt.Natural where
-    plus = (+)
+    op = (+)
     assoc = nt_assoc
 
 Monoid.Monoid Nt.Natural where
@@ -17,7 +18,7 @@ Monoid.Monoid Nt.Natural where
     right_neutral (N x) = cong (right_neutral x)
 
 Semigroup.Semigroup Zahlen where
-    plus = (+)
+    op = (+)
     assoc = z_assoc
 
 Monoid.Monoid Zahlen where
@@ -25,7 +26,12 @@ Monoid.Monoid Zahlen where
 
     left_neutral x = Refl
 
-    right_neutral x = rn
+    right_neutral x = Zahlen.right_neutral
+
+Group.Group Zahlen where
+    inv = Zahlen.inv_plus
+    left_inv = Zahlen.left_inv
+    right_inv = Zahlen.right_inv
 
 oneZ : Zahlen
 oneZ = plus_one Zero
@@ -56,3 +62,4 @@ h = absurd
 
 k: Void -> 5 = 5
 k = absurd
+
