@@ -5,6 +5,7 @@ import Monoid
 import Group
 import Natural as Nt
 import Zahlen
+import DivMod
 
 Semigroup.Semigroup Nt.Natural where
     op = (+)
