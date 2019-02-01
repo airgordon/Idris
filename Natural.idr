@@ -25,6 +25,10 @@ public export
 data Positive: Natural -> Type where
     PositiveN : (x: Natural) -> Positive (N x)
 
+public export
+data Positive2: Natural -> Type where
+    Positive2N : Positive2 (N x)
+
 public export total
 mul : Natural -> Natural -> Natural
 mul F y = F

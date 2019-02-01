@@ -183,6 +183,12 @@ right_inv {x=Zpos (Nt.PositiveN y)} = left_inv_neg y
 right_inv {x=Zneg (Nt.PositiveN y)} = left_inv_pos y
 
 public export total
+double_plus_inv : {t : Zahlen} -> t = inv_plus (inv_plus t)
+double_plus_inv {t = Zero} = Refl
+double_plus_inv {t = (Zpos y)} = Refl
+double_plus_inv {t = (Zneg y)} = Refl
+
+public export total
 mulPos : Positive x -> Zahlen -> Zahlen
 mulPos (PositiveN F) y = y
 mulPos (PositiveN (N x)) y = y + mulPos (PositiveN x) y
@@ -192,3 +198,78 @@ mul : Zahlen -> Zahlen -> Zahlen
 mul Zero y = Zero
 mul (Zneg t) y = inv_plus (mulPos t y)
 mul (Zpos t) y = mulPos t y
+
+public export
+data NonZero: Zahlen -> Type where
+    PosZ: NonZero (Zpos s)
+    NegZ: NonZero (Zneg s)
+
+public export total
+mul_com: {x, y : Zahlen} -> mul x y = mul y x
+
+public export total
+nsfgngf2 : (a, b, c: Zahlen) -> a + b + c = a + c + b
+
+public export total
+nsfgngf : (a, b, c, d : Zahlen) -> a + b + c + d = a + c + b + d
+nsfgngf a b c d = cong (nsfgngf2 a b c)
+
+
+public export total
+sghgfhsfgh : (a, b, c, d : Zahlen) -> a + b + c + d = a + c + (b + d)
+sghgfhsfgh a b c d = rewrite sym (z_assoc {x=(a+c)} {y=b} {z=d}) in (nsfgngf a b c d)
+
+public export total
+distr3_rhs_2_rhs_3 : (a, b, c, d : Zahlen) -> a + b + (c + d) = a + c + (b + d)
+distr3_rhs_2_rhs_3 a b c d = rewrite sym (z_assoc {x=(a+b)} {y=c} {z=d}) in (sghgfhsfgh a b c d)
+
+public export total
+distr3_rhs_2 : (y : Zahlen) -> (t : Zahlen) -> (z : Positive x) -> mulPos z (y + t) = ((mulPos z y) + (mulPos z t))
+distr3_rhs_2 y t (PositiveN F) = Refl
+distr3_rhs_2 y t (PositiveN (N z1)) = rewrite (distr3_rhs_2 y t (PositiveN z1)) in distr3_rhs_2_rhs_3 y t (mulPos (PositiveN z1) y) (mulPos (PositiveN z1) t)
+
+
+public export total
+distr3 : {y, t, z : Zahlen} -> mul z (y + t) = mul z y + (mul z t)
+distr3 {z=Zero} = Refl
+distr3 {z=(Zpos z1)} {y=y} {t=t} = distr3_rhs_2 y t z1
+distr3 {z=(Zneg z1)} = ?distr3_rhs_3
+
+public export total
+distr2 : {y, t, z : Zahlen} -> mul z (y + t) = mul z y + (mul t z)
+distr2 {y=y} {t=t} {z=z} = rewrite mul_com {x=t} {y=z} in distr3
+
+public export total
+distr1 : {y, t, z : Zahlen} -> mul z (y + t) = mul y z + (mul t z)
+distr1 {y=y} {t=t} {z=z} = rewrite mul_com {x=y} {y=z} in distr2
+
+public export total
+distr: {y, t, z : Zahlen} -> mul (y + t) z = mul y z + (mul t z)
+distr {y=y} {t=t} {z=z} = rewrite mul_com {x=y+t} {y=z} in distr1
+
+public export total
+mul_assoc_rhs_2_rhs_3 : (x1 : Natural) -> (y : Zahlen) -> (z : Zahlen) ->
+(mul (mulPos (PositiveN x1) y) z = mulPos (PositiveN x1) (mul y z)) -> mul (y + (mulPos (PositiveN x1) y)) z = ((mul y z) + (mulPos (PositiveN x1) (mul y z)))
+mul_assoc_rhs_2_rhs_3 x1 y z prf = rewrite (sym prf) in distr {y=y} {t = mulPos (PositiveN x1) y} {z=z}
+
+public export total
+mul_assoc_pos : {x : Positive x1} -> {y : Zahlen} -> {z : Zahlen} -> mul (mulPos x y) z = mulPos x (mul y z)
+mul_assoc_pos {x=PositiveN F} = Refl
+mul_assoc_pos {x=PositiveN (N x1)} {y=y} {z=z} = mul_assoc_rhs_2_rhs_3 x1 y z (mul_assoc_pos {x = PositiveN x1} {y=y} {z=z})
+
+public export total
+mul_inv_first : (y : Zahlen) -> (z : Zahlen) -> mul (inv_plus y) z = inv_plus (mul y z)
+mul_inv_first Zero z = Refl
+mul_inv_first (Zpos y) z = Refl
+mul_inv_first (Zneg y) z = double_plus_inv
+
+public export total
+mul_assoc_neg : (x : Positive x1) -> (y : Zahlen) -> (z : Zahlen) -> mul (inv_plus (mulPos x y)) z = inv_plus (mulPos x (mul y z))
+mul_assoc_neg x y z = rewrite mul_inv_first (mulPos x y) z in cong mul_assoc_pos
+
+
+public export total
+mul_assoc : {x, y, z : Zahlen} -> (x `mul` y) `mul` z = x `mul` (y `mul` z)
+mul_assoc {x=Zero} = Refl
+mul_assoc {x=(Zpos x1)} = mul_assoc_pos
+mul_assoc {x=(Zneg x1)} {y=y} {z=z} = mul_assoc_neg x1 y z

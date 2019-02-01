@@ -64,3 +64,13 @@ h = absurd
 k: Void -> 5 = 5
 k = absurd
 
+j: NonZero Main.m_threeZ
+j = NegZ
+
+gg: Positive2 $ N . N . N . N . N $ F
+gg = Positive2N
+
+total
+fg : (z : Zahlen) -> NonZero z -> Zahlen
+fg (Zpos s) _ = Zero
+fg (Zneg s) _ = Zpos (PositiveN F)
