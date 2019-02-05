@@ -189,6 +189,12 @@ double_plus_inv {t = (Zpos y)} = Refl
 double_plus_inv {t = (Zneg y)} = Refl
 
 public export total
+inv_sum : {a, b : Zahlen} -> inv_plus (a + b) = inv_plus a + inv_plus b
+
+public export total
+plus_com: {x, y : Zahlen} -> x + y = y + x
+
+public export total
 mulPos : Positive x -> Zahlen -> Zahlen
 mulPos (PositiveN F) y = y
 mulPos (PositiveN (N x)) y = y + mulPos (PositiveN x) y
@@ -208,11 +214,24 @@ public export total
 mul_com: {x, y : Zahlen} -> mul x y = mul y x
 
 public export total
-nsfgngf2 : (a, b, c: Zahlen) -> a + b + c = a + c + b
+congf : {a, b: Type} -> (f: a -> b) -> x = y -> f x = f y
+congf _ p = cong p
+
+public export total
+nsfgngf35 : (a, b, c: Zahlen) ->  a + (c + b) = a + c + b
+nsfgngf35 a b c = sym (z_assoc)
+
+public export total
+nsfgngf34 : (a, b, c: Zahlen) ->  a + (b + c) = a + c + b
+nsfgngf34 a b c = rewrite plus_com {x=b} {y=c} in nsfgngf35 a b c
+
+public export total
+nsfgngf3 : (a, b, c: Zahlen) -> a + b + c = a + c + b
+nsfgngf3 a b c = rewrite z_assoc {x=a} {y=b} {z=c} in nsfgngf34 a b c
 
 public export total
 nsfgngf : (a, b, c, d : Zahlen) -> a + b + c + d = a + c + b + d
-nsfgngf a b c d = cong (nsfgngf2 a b c)
+nsfgngf a b c d = congf (+d) (nsfgngf3 a b c)
 
 
 public export total
@@ -224,16 +243,20 @@ distr3_rhs_2_rhs_3 : (a, b, c, d : Zahlen) -> a + b + (c + d) = a + c + (b + d)
 distr3_rhs_2_rhs_3 a b c d = rewrite sym (z_assoc {x=(a+b)} {y=c} {z=d}) in (sghgfhsfgh a b c d)
 
 public export total
-distr3_rhs_2 : (y : Zahlen) -> (t : Zahlen) -> (z : Positive x) -> mulPos z (y + t) = ((mulPos z y) + (mulPos z t))
+distr3_rhs_2 : (y, t : Zahlen) -> (z : Positive x) -> mulPos z (y + t) = ((mulPos z y) + (mulPos z t))
 distr3_rhs_2 y t (PositiveN F) = Refl
 distr3_rhs_2 y t (PositiveN (N z1)) = rewrite (distr3_rhs_2 y t (PositiveN z1)) in distr3_rhs_2_rhs_3 y t (mulPos (PositiveN z1) y) (mulPos (PositiveN z1) t)
+
+public export total
+distr3_rhs_3 : (y, t : Zahlen) -> (z1 : Positive x) -> inv_plus (mulPos z1 (y + t)) = ((inv_plus (mulPos z1 y)) + (inv_plus (mulPos z1 t)))
+distr3_rhs_3 y t z1 = rewrite distr3_rhs_2 y t z1 in inv_sum
 
 
 public export total
 distr3 : {y, t, z : Zahlen} -> mul z (y + t) = mul z y + (mul z t)
 distr3 {z=Zero} = Refl
 distr3 {z=(Zpos z1)} {y=y} {t=t} = distr3_rhs_2 y t z1
-distr3 {z=(Zneg z1)} = ?distr3_rhs_3
+distr3 {z=(Zneg z1)} {y=y} {t=t} = distr3_rhs_3 y t z1
 
 public export total
 distr2 : {y, t, z : Zahlen} -> mul z (y + t) = mul z y + (mul t z)
