@@ -6,6 +6,8 @@ import Group
 import Natural as Nt
 import Zahlen
 import DivMod
+import MonoidTh
+import GroupTh
 
 Semigroup.Semigroup Nt.Natural where
     op = (+)
@@ -14,13 +16,13 @@ Semigroup.Semigroup Nt.Natural where
 Monoid.Monoid Nt.Natural where
     neutral = F
     left_neutral x = Refl
-
     right_neutral F = Refl
     right_neutral (N x) = cong (right_neutral x)
 
 Semigroup.Semigroup Zahlen where
     op = (+)
     assoc = z_assoc
+
 
 Monoid.Monoid Zahlen where
     neutral = Zero
@@ -42,7 +44,7 @@ twoZ = plus_one oneZ
 
 threeZ : Zahlen
 threeZ = plus_one twoZ
-
+--
 m_oneZ : Zahlen
 m_oneZ = minus_one Zero
 

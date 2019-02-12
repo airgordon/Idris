@@ -1,4 +1,4 @@
-module Utils
+module Order
 
 
 data Greater: Natural -> Natural -> Type where
