@@ -9,6 +9,8 @@ import DivMod
 import MonoidTh
 import GroupTh
 
+import Data.Vect
+
 Semigroup.Semigroup Nt.Natural where
     op = (+)
     assoc = nt_assoc
@@ -60,9 +62,6 @@ y Refl impossible
 g: Nt.Positive Nt.F -> Void
 g (PositiveN _) impossible
 
-h: Void -> 5 = 7
-h = absurd
-
 k: Void -> 5 = 5
 k = absurd
 
@@ -76,3 +75,36 @@ total
 fg : (z : Zahlen) -> NonZero z -> Zahlen
 fg (Zpos s) _ = Zero
 fg (Zneg s) _ = Zpos (PositiveN F)
+
+f : Integer -> Type
+f x = x * x = 25
+
+h : Exists Main.f
+h = Evidence 5 Refl
+
+r : Type
+r = Subset Integer f
+
+hg1 : Main.r
+hg1 = Element 5 Refl
+
+hg2 : Main.r
+hg2 = Element (-5) Refl
+
+m : DPair Integer Main.f
+m = (5 ** Refl)
+
+vectn : Nat -> Type
+vectn x = Vect x String
+
+p : DPair Nat Main.vectn
+p = (1 ** ["Hello"])
+
+inv_ex_rhs_1 : (P : a -> Type) -> (x : a) -> (pf : P x) -> ((x1 : a) -> P x1 -> Void) -> Void
+inv_ex_rhs_1 P x pf f = f x pf
+
+inv_ex : {a: Type} -> {P: a -> Type} -> Exists P -> Not ((x:a) -> Not (P x))
+inv_ex {P} (Evidence x pf) = inv_ex_rhs_1 P x pf
+
+inv_any : {a : Type} -> {P: a -> Type} -> ((x : a) -> P x) -> Not (Exists (\t => (Not (P t))))
+inv_any f (Evidence r pf) = pf (f r)

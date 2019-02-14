@@ -337,7 +337,82 @@ data NonZero: Zahlen -> Type where
     NegZ: NonZero (Zneg s)
 
 public export total
+y_rhs_1 : (x : Natural) -> Zero = mulPos (PositiveN x) Zero
+y_rhs_1 F = Refl
+y_rhs_1 (N x) = y_rhs_1 x
+
+public export total
+y_rhs_2 : (x : Natural) -> Zero = inv_plus (mulPos (PositiveN x) Zero)
+y_rhs_2 F = Refl
+y_rhs_2 (N x) = y_rhs_2 x
+
+public export total
+mul_com_rhs_1 : (y : Zahlen) -> Zero = mul y Zero
+mul_com_rhs_1 Zero = Refl
+mul_com_rhs_1 (Zpos (PositiveN x)) = y_rhs_1 x
+mul_com_rhs_1 (Zneg (PositiveN x)) = y_rhs_2 x
+
+public export total
+mul_com_rhs_4_rhs_2_rhs_4_rhs_2 : (x, z : Zahlen) -> (y : Natural) -> plus_one (incr y (x + z)) = plus_one x + incr y z
+
+public export total
+mul_com_rhs_4_rhs_2_rhs_4 : (x : Zahlen) -> (y : Natural) -> incr y (mulPos (PositiveN y) x) = mulPos (PositiveN y) (plus_one x)
+mul_com_rhs_4_rhs_2_rhs_4 x F = Refl
+mul_com_rhs_4_rhs_2_rhs_4 x (N y) = rewrite sym (mul_com_rhs_4_rhs_2_rhs_4 x y) in mul_com_rhs_4_rhs_2_rhs_4_rhs_2 x (mulPos (PositiveN y) x) y
+
+public export total
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs_rhs_2 : (x, z : Zahlen) -> minus_one (x + z) = x + minus_one z
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs_rhs_2 x z = ?mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs_rhs_2_rhs (z_assoc {x} {y = Zneg (PositiveN F)} {z})
+
+
+public export total
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs : (x, z : Zahlen) -> (y : Natural) -> minus_one (decr y (inv_plus x + z)) = inv_plus (plus_one x) + decr y z
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs x z F = ?mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs_rhs_1
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs x z (N y) = rewrite mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs x z y in mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs_rhs_2 (inv_plus (plus_one x)) (decr y z)
+
+
+public export total
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs : (x, z : Zahlen) -> (y : Natural) -> minus_one (decr y (inv_plus (x + z))) = inv_plus (plus_one x) + decr y (inv_plus z)
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs x z y = rewrite inv_sum {a=x} {b=z} in mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs_rhs x (inv_plus z) y
+
+public export total
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3 : (x : Zahlen) -> (y : Natural)
+  -> decr y (inv_plus (mulPos (PositiveN y) x)) = inv_plus (mulPos (PositiveN y) (plus_one x))
+  -> minus_one (decr y (inv_plus (x + mulPos (PositiveN y) x))) = inv_plus (plus_one x) + inv_plus (mulPos (PositiveN y) (plus_one x))
+mul_com_rhs_4_rhs_2_rhs_2_rhs_3 x y s = rewrite sym s in mul_com_rhs_4_rhs_2_rhs_2_rhs_3_rhs x (mulPos (PositiveN y) x) y
+
+public export total
+mul_com_rhs_4_rhs_2_rhs_2 : (x : Zahlen) -> (y : Natural) -> decr y (inv_plus (mulPos (PositiveN y) x)) = inv_plus (mulPos (PositiveN y) (plus_one x))
+mul_com_rhs_4_rhs_2_rhs_2 x F = sym (inv_sum_rhs_2_rhs_2 x)
+mul_com_rhs_4_rhs_2_rhs_2 x (N y) = rewrite inv_sum {a=plus_one x} {b=mulPos (PositiveN y) (plus_one x)} in mul_com_rhs_4_rhs_2_rhs_2_rhs_3 x y (mul_com_rhs_4_rhs_2_rhs_2 x y)
+
+public export total
+mul_com_rhs_4_rhs_2 : (x : Zahlen) -> (y : Zahlen) -> y + mul y x = mul y (plus_one x)
+mul_com_rhs_4_rhs_2 x Zero = Refl
+mul_com_rhs_4_rhs_2 x (Zpos (PositiveN y)) = mul_com_rhs_4_rhs_2_rhs_4 x y
+mul_com_rhs_4_rhs_2 x (Zneg (PositiveN y)) = mul_com_rhs_4_rhs_2_rhs_2 x y
+
+public export total
+mul_com_rhs_4_rhs_1_rhs_1 : Zpos (PositiveN x) = mulPos (PositiveN x) (Zpos (PositiveN F))
+mul_com_rhs_4_rhs_1_rhs_1 {x = F} = Refl
+mul_com_rhs_4_rhs_1_rhs_1 {x = (N t)} = rewrite sym (mul_com_rhs_4_rhs_1_rhs_1 {x=t}) in Refl
+
+public export total
+mul_com_rhs_4_rhs_1 : y = mul y (Zpos (PositiveN F))
+mul_com_rhs_4_rhs_1 {y = Zero} = Refl
+mul_com_rhs_4_rhs_1 {y = (Zpos (PositiveN t))} = mul_com_rhs_4_rhs_1_rhs_1
+mul_com_rhs_4_rhs_1 {y = (Zneg (PositiveN t))} = rewrite sym (mul_com_rhs_4_rhs_1_rhs_1 {x=t}) in Refl
+
+public export total
+mul_com_rhs_4 : (x : Natural) -> (y : Zahlen) -> mulPos (PositiveN x) y = mul y (Zpos (PositiveN x))
+mul_com_rhs_4 F y = mul_com_rhs_4_rhs_1
+mul_com_rhs_4 (N x) y = rewrite mul_com_rhs_4 x y in (mul_com_rhs_4_rhs_2 (Zpos (PositiveN x)) y)
+
+public export total
 mul_com: {x, y : Zahlen} -> mul x y = mul y x
+mul_com {x = Zero} {y} = mul_com_rhs_1 y
+mul_com {x = (Zpos (PositiveN x))} {y} = mul_com_rhs_4 x y
+mul_com {x = (Zneg (PositiveN x))} {y} = rewrite mul_com_rhs_4 x y in ?mul_com_rhs_2
 
 public export total
 congf : {a, b: Type} -> (f: a -> b) -> x = y -> f x = f y
