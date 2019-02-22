@@ -3,6 +3,12 @@ module DivMod
 import Natural
 import Prelude.Pairs
 import Builtins
+import Zahlen
+
+public export
+data Divide : NonNeg n -> NonNeg d -> {t : NonNeg m} -> {prf : (mul d m) = n} -> Type where
+    MkDiv : (nn: NonNeg n) -> (dd : NonNeg d) -> {t : NonNeg m} -> (prf : (mul d m) = n) -> Divide nn dd {t} {prf}
+
 
 public export
 data DivMod  : (d: Natural) -> Positive d2 -> (r: Natural) -> (q: Natural) -> (    d = (mul d2 r) + q ) ->  Type where

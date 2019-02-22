@@ -46,6 +46,9 @@ twoZ = plus_one oneZ
 
 threeZ : Zahlen
 threeZ = plus_one twoZ
+
+fourZ : Zahlen
+fourZ = plus_one threeZ
 --
 m_oneZ : Zahlen
 m_oneZ = minus_one Zero
@@ -66,7 +69,13 @@ k: Void -> 5 = 5
 k = absurd
 
 j: NonZero Main.m_threeZ
-j = NegZ
+j = NZneg
+
+jj: NonNeg Main.twoZ
+jj = NNpos
+
+jj2: NonNeg Main.fourZ
+jj2 = NNpos
 
 gg: Positive2 $ N . N . N . N . N $ F
 gg = Positive2N
@@ -108,3 +117,9 @@ inv_ex {P} (Evidence x pf) = inv_ex_rhs_1 P x pf
 
 inv_any : {a : Type} -> {P: a -> Type} -> ((x : a) -> P x) -> Not (Exists (\t => (Not (P t))))
 inv_any f (Evidence r pf) = pf (f r)
+
+rg : Divide Main.jj2 Main.jj {t = Main.jj}
+rg = MkDiv Main.jj2 Main.jj Refl
+
+hg3 : Main.r
+hg3 = Element (-5) Refl
