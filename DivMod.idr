@@ -5,9 +5,24 @@ import Prelude.Pairs
 import Builtins
 import Zahlen
 
+
+--public export
+--data Divide : NonNeg n -> NonNeg d -> {tt : NonNeg t} -> {prf : (mul d t) = n} -> Type where
+--    MkDiv : (nn: NonNeg n) -> (dd : NonNeg d) -> {tt : NonNeg t} -> (prf : (mul d t) = n) -> Divide nn dd {tt} {prf}
+
 public export
-data Divide : NonNeg n -> NonNeg d -> {t : NonNeg m} -> {prf : (mul d m) = n} -> Type where
-    MkDiv : (nn: NonNeg n) -> (dd : NonNeg d) -> {t : NonNeg m} -> (prf : (mul d m) = n) -> Divide nn dd {t} {prf}
+data Divide : NonNeg n -> NonNeg d -> Type where
+    MkDiv : {nn: NonNeg n} -> {dd : NonNeg d} -> (t : Zahlen) -> {auto tt : NonNeg t} -> (prf : (mul t d) = n) -> Divide nn dd
+
+diw2 : (nn: NonNeg n) -> Divide nn nn
+diw2 nn = MkDiv (Zpos F) Refl
+
+diw : (nn: NonNeg n) -> Divide nn nn
+diw {n = Zero} NNzero = ?gkdfjgkdfgf_4
+diw {n = (Zpos y)} NNpos = ?gkdfjgkdfgf_1
+diw {n = (Zneg _)} NNpos impossible
+diw {n = (Zneg _)} NNzero impossible
+
 
 
 public export

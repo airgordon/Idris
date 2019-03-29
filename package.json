@@ -1,0 +1,9 @@
+{
+  "name": "Idris",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {},
+  "scripts": {
+    "start": "idris --ibcsubdir bin -p contrib hello.idr"
+  }
+}
