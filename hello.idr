@@ -8,6 +8,7 @@ import Zahlen
 import DivMod
 import MonoidTh
 import GroupTh
+import LTE
 
 import Data.Vect
 
@@ -117,9 +118,6 @@ inv_ex {P} (Evidence x pf) = inv_ex_rhs_1 P x pf
 
 inv_any : {a : Type} -> {P: a -> Type} -> ((x : a) -> P x) -> Not (Exists (\t => (Not (P t))))
 inv_any f (Evidence r pf) = pf (f r)
-
-rg : Divide Main.jj2 Main.jj {t = Main.jj}
-rg = MkDiv Main.jj2 Main.jj Refl
 
 hg3 : Main.r
 hg3 = Element (-5) Refl

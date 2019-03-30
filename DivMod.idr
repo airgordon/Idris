@@ -6,12 +6,27 @@ import Builtins
 import Zahlen
 
 public export
-data Divide : NonNeg n -> NonNeg d -> {t : NonNeg m} -> {prf : (mul d m) = n} -> Type where
-    MkDiv : (nn: NonNeg n) -> (dd : NonNeg d) -> {t : NonNeg m} -> (prf : (mul d m) = n) -> Divide nn dd {t} {prf}
+data Divide : (n: Zahlen) -> (d: Zahlen) -> Type where
+  MkDiv : (m: Zahlen) -> (prf : (mul m d) = n) -> Divide n d
 
+divSelf : (n : Zahlen) -> Divide n n
+divSelf n = MkDiv (Zpos (PositiveN F)) Refl
+
+divOne : (n : Zahlen) -> Divide n (Zpos (PositiveN F))
+divOne n = MkDiv n (rewrite mul_com {x=n} {y=Zpos (PositiveN F)} in Refl)
+
+divZ : (d : Zahlen) -> Divide Zero d
+divZ d = MkDiv Zero Refl
+
+divPlus : (n1: Zahlen) ->
+          (n2: Zahlen) ->
+          (d: Zahlen) ->
+          Divide n1 d -> Divide n2 d ->
+          Divide (n1 + n2) d
+divPlus n1 n2 d (MkDiv m1 prf1) (MkDiv m2 prf2) = MkDiv (m1 + m2) (rewrite sym prf1 in rewrite sym prf2 in distr)
 
 public export
-data DivMod  : (d: Natural) -> Positive d2 -> (r: Natural) -> (q: Natural) -> (    d = (mul d2 r) + q ) ->  Type where
+data DivMod  : (d: Natural) -> Positive d2 -> (r: Natural) -> (q: Natural) -> ( d = (mul d2 r) + q ) ->  Type where
      DivModc : (d: Natural) -> (d1 : Positive d2) -> (r: Natural) -> (q: Natural) -> (p: (d = (mul d2 r) + q)) ->  DivMod d d1 r q p
 
 --- public export
