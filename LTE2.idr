@@ -1,49 +1,78 @@
 import Zahlen
 import Natural
+
+public export
 data LTE : Zahlen -> Zahlen -> Type where
   MkLTE :  {x, y : Zahlen} -> {z : Zahlen} -> {auto zz : NonNeg z} -> inv_plus x + y = z -> LTE x y
 
-decrZero : decr x Zero = Zneg x
-decrZero {x = F} = Refl
-decrZero {x = (N s)} = rewrite decrZero {x=s} in Refl
-
+public export
+total
 t : {h : Zahlen} -> h = Zero -> {x : Natural} -> h = Zneg x -> Void
 t {h = Zero} Refl Refl impossible
 t {h = (Zpos _)} Refl _ impossible
 t {h = (Zneg _)} Refl _ impossible
 
-neg_plus_zero_isnt_zero_2 : (decr x Zero = Zero) -> (decr x Zero = Zneg x) -> Void
-neg_plus_zero_isnt_zero_2 prf prf1 = t prf prf1
+public export
+total
+t2 : {h : Zahlen} -> {s : Natural} -> h = Zpos s -> {x : Natural} -> h = Zneg x -> Void
+t2 {h = Zero} Refl _ impossible
+t2 {h = (Zpos _)} Refl Refl impossible
+t2 {h = (Zneg _)} Refl _ impossible
 
+public export
+total
+tp : (x, y : Zahlen) -> (t : Zahlen) -> Type
+tp x y t = inv_plus x + y = t
 
-neg_plus_zero_isnt_zero_1 : decr x Zero = Zero -> Void
-neg_plus_zero_isnt_zero_1 {x} prf = neg_plus_zero_isnt_zero_2 prf (decrZero {x})
+public export
+total
+calc : (x, y : Zahlen) -> DPair Zahlen (tp x y)
+calc x y = (inv_plus x + y ** Refl)
 
-fhgfgh_1 : LTE (Zpos s) Zero -> Void
-fhgfgh_1 (MkLTE {x = Zpos x} {z = Zero} prf) = neg_plus_zero_isnt_zero_1 prf
-fhgfgh_1 (MkLTE {z = (Zpos y)} prf) = ?fhgfgh_1_rhs_3
-fhgfgh_1 (MkLTE {z = (Zneg y)} prf) = ?fhgfgh_1_rhs_4
+public export
+total
+cmp2_rhs_rhs_1 : (s : Natural) -> (pf : tp x y (Zneg s)) -> LTE x y -> Void
+cmp2_rhs_rhs_1 s pf (MkLTE {zz = NNpos} prf) = t2 prf pf
+cmp2_rhs_rhs_1 s pf (MkLTE {zz = NNzero} prf) = t prf pf
 
-fhgfgh_2_rhs_4 : LTE (Zpos (N x)) (Zpos F) -> Void
-fhgfgh_2_rhs_4 {x = F} (MkLTE {zz = NNpos} Refl) impossible
-fhgfgh_2_rhs_4 {x = F} (MkLTE {zz = NNzero} Refl) impossible
-fhgfgh_2_rhs_4 {x = N x} (MkLTE {z = Zero} {zz = NNzero} prf) = ?fhgfgh_2_rhs_4_rhs_1
-fhgfgh_2_rhs_4 {x = N x} (MkLTE {z = Zpos z} {zz = NNpos} prf) = ?fhgfgh_2_rhs_4_rhs_2
-fhgfgh_2_rhs_4 {x = N _} (MkLTE {z = Zneg _} {zz = NNpos} _) impossible
-fhgfgh_2_rhs_4 {x = N _} (MkLTE {z = Zneg _} {zz = NNzero} _) impossible
+public export
+total
+cmp_rhs : (t : DPair Zahlen (tp x y)) -> Dec (LTE x y)
+cmp_rhs ((Zpos s) ** pf) = Yes (MkLTE pf)
+cmp_rhs ((Zneg s) ** pf) = No (cmp2_rhs_rhs_1 s pf)
+cmp_rhs (Zero ** pf) = Yes (MkLTE pf)
 
-incrLte : LTE x y -> LTE (plus_one x) (plus_one y)
-incrLte  (MkLTE {x} {y} {z} prf) = MkLTE {z} (rewrite inv_sum_rhs_2_rhs_2 x in (rewrite sym prf in eq4 (Zneg F) (inv_plus x) (Zpos F) y))
-
-fhgfgh_2 : Dec (LTE (Zpos s) (Zpos y))
-fhgfgh_2 {s = F} {y = F} = Yes (MkLTE Refl)
-fhgfgh_2 {s = F} {y = N x} = Yes (MkLTE Refl)
-fhgfgh_2 {s = N x} {y = F} = No (fhgfgh_2_rhs_4)
-fhgfgh_2 {s = N x} {y = N y} = ?fhgfgh_2_rhs_5 (fhgfgh_2 {s=x} {y})
-
+public export
+total
 cmp : (x, y : Zahlen) -> Dec (LTE x y)
-cmp (Zpos s) Zero = No fhgfgh_1
-cmp (Zpos s) (Zpos y) = fhgfgh_2
-cmp (Zpos s) (Zneg y) = ?fhgfgh_3
-cmp (Zneg s) y = ?fhgfgh
-cmp Zero y = ?cmp_rhs_1
+cmp x y = cmp_rhs (calc x y)
+
+reflex : Main.LTE x x
+reflex = MkLTE left_inv
+
+nonneg_incr: NonNeg z -> NonNeg (plus_one z)
+nonneg_incr {z = Zero} _ = NNpos
+nonneg_incr {z = (Zpos y)} _ = NNpos
+nonneg_incr {z = (Zneg _)} NNpos impossible
+nonneg_incr {z = (Zneg _)} NNzero impossible
+
+nonneg_plus: NonNeg x -> NonNeg y -> NonNeg (x + y)
+nonneg_plus {x = Zero} NNzero yy = yy
+nonneg_plus {x = (Zpos F)} _ yy = nonneg_incr yy
+nonneg_plus {x = (Zpos (N s))} xx yy = nonneg_incr (nonneg_plus {x = Zpos s} NNpos yy)
+nonneg_plus {x = (Zneg _)} NNpos _ impossible
+nonneg_plus {x = (Zneg _)} NNzero _ impossible
+
+trans_rhs_3_rhs_rhs_rhs : {x: Zahlen} -> x + z = x + (y + inv_plus y) + z
+
+trans_rhs_3_rhs_rhs : {x: Zahlen} -> x + z = x + y + inv_plus y + z
+trans_rhs_3_rhs_rhs {x} {y} {z} = rewrite z_assoc {x} {y} {z=inv_plus y} in trans_rhs_3_rhs_rhs_rhs {x} {y} {z}
+
+trans_rhs_3_rhs : {x: Zahlen} -> x + z = x + y + (inv_plus y + z)
+trans_rhs_3_rhs {x} {y} {z} = rewrite sym (z_assoc {x=x+y} {y=inv_plus y} {z}) in trans_rhs_3_rhs_rhs
+
+trans_rhs_3 : (inv_plus x + y = z1) -> (inv_plus y + z = z2) -> (inv_plus x + z = z1 + z2)
+trans_rhs_3 prf1 prf2 = rewrite sym prf1 in (rewrite sym prf2 in trans_rhs_3_rhs)
+
+trans : Main.LTE x y -> Main.LTE y z -> Main.LTE x z
+trans (MkLTE {z=z1} {zz=zz1} prf) (MkLTE {z=z2} {zz=zz2} prf2) = MkLTE {z = z1 + z2} {zz = nonneg_plus zz1 zz2} (trans_rhs_3 prf prf2)
