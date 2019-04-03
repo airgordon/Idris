@@ -369,6 +369,10 @@ data NonNeg: Zahlen -> Type where
     NNpos: NonNeg (Zpos s)
     NNzero: NonNeg Zero
 
+public export
+data Znat: Zahlen -> Type where
+    MkZnat: Znat (Zpos s)
+
 public export total
 y_rhs_1 : (x : Natural) -> Zero = mulPos ( x) Zero
 y_rhs_1 F = Refl

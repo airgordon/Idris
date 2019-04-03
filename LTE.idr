@@ -1,9 +1,15 @@
+module LTE
+
 import Zahlen
 import Natural
 
 public export
 data LTE : Zahlen -> Zahlen -> Type where
   MkLTE :  {x, y : Zahlen} -> {z : Zahlen} -> {auto zz : NonNeg z} -> inv_plus x + y = z -> LTE x y
+
+public export
+GT : Zahlen -> Zahlen -> Type
+GT x y = LTE y x
 
 public export
 total
@@ -47,7 +53,7 @@ total
 cmp : (x, y : Zahlen) -> Dec (LTE x y)
 cmp x y = cmp_rhs (calc x y)
 
-reflex : Main.LTE x x
+reflex : LTE.LTE x x
 reflex = MkLTE left_inv
 
 nonneg_incr: NonNeg z -> NonNeg (plus_one z)
@@ -74,5 +80,5 @@ trans_rhs_3_rhs {x} {y} {z} = rewrite sym (z_assoc {x=x+y} {y=inv_plus y} {z}) i
 trans_rhs_3 : (inv_plus x + y = z1) -> (inv_plus y + z = z2) -> (inv_plus x + z = z1 + z2)
 trans_rhs_3 prf1 prf2 = rewrite sym prf1 in (rewrite sym prf2 in trans_rhs_3_rhs)
 
-trans : Main.LTE x y -> Main.LTE y z -> Main.LTE x z
+trans : LTE.LTE x y -> LTE.LTE y z -> LTE.LTE x z
 trans (MkLTE {z=z1} {zz=zz1} prf) (MkLTE {z=z2} {zz=zz2} prf2) = MkLTE {z = z1 + z2} {zz = nonneg_plus zz1 zz2} (trans_rhs_3 prf prf2)
