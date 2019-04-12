@@ -9,7 +9,7 @@ import DivMod
 import MonoidTh
 import GroupTh
 import DPairs
-import LTE2
+import LTE
 
 import Data.Vect
 

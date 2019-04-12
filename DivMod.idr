@@ -54,5 +54,31 @@ diw2_rhs (MkDivModN {nn} {dd} {d} {r} {n1} x prf) = case cmpr of
     cmpr : Dec (LTE (n1 + d) n)
     cmpr = (LTE.cmp (n1 + d) n)
 
-diwNn : (n, d: Zahlen) -> NonNeg n -> Znat d -> DivMod n d
-diwNn n nn d x = ?fgjsfg
+--diwNn : (n, d: Zahlen) -> NonNeg n -> Znat d -> DivMod n d
+--diwNn n nn d x = ?fgjsfg
+
+public export total
+jdlkjfshs_3_rhs1_rhs : inv_plus n + d = inv_plus (inv_plus d) + inv_plus n
+jdlkjfshs_3_rhs1_rhs {d} = rewrite sym (double_plus_inv {t=d}) in plus_com
+
+public export total
+jdlkjfshs_3_rhs1 : (inv_plus ((inv_plus d) + n) = inv_plus (Zneg x)) -> ((inv_plus n) + d) = Zpos x
+jdlkjfshs_3_rhs1 {n} {d} prf = rewrite sym prf in(rewrite inv_sum {a=inv_plus d} {b=n} in jdlkjfshs_3_rhs1_rhs)
+
+public export total
+jdlkjfshs_3 :  (h : Zneg x = ((inv_plus d) + n)) -> LTE n d
+jdlkjfshs_3 {x}  h =  MkLTE {z = Zpos x} (jdlkjfshs_3_rhs1 (congf inv_plus (sym h)))
+
+public export total
+hehwekhh_2 : (contra : LTE n d -> Void) -> {t: Zahlen} -> {auto h : t = (inv_plus d) + n} -> NonNeg ((inv_plus d) + n)
+hehwekhh_2 {t = Zero} {h} _ = rewrite sym h in NNzero
+hehwekhh_2 {t = (Zpos x)} {h} _ = rewrite sym h in NNpos
+hehwekhh_2 {t = (Zneg x)} {h} contra = rewrite sym h in void (contra (jdlkjfshs_3 h))
+
+public export total
+divModc : (n, d: Zahlen) -> Dec (LTE.LTE n d) -> {auto nn: NonNeg n} -> {auto dd: Znat d} -> (Zahlen, Zahlen)
+divModc n d (Yes _) = (Zero, n)
+divModc n d (No contra) = divModc (inv_plus d + n) d (LTE.cmp (inv_plus d + n) d) {nn = hehwekhh_2 contra}
+
+public export total
+divMod : (n, d: Zahlen) ->{auto nn: NonNeg n} -> {auto dd: Znat d}-> (Zahlen, Zahlen)
